@@ -1,0 +1,32 @@
+# server:
+#   port: 8080
+#   servlet:
+#     context-path: /
+
+# spring:
+#   application:
+#     name: capstone-backend
+
+#   datasource:
+#     url: jdbc:mysql://localhost:3306/capstone_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+#     username: root
+#     password: password
+#     driver-class-name: com.mysql.cj.jdbc.Driver
+
+#   jpa:
+#     hibernate:
+#       ddl-auto: update
+#     show-sql: true
+#     properties:
+#       hibernate:
+#         format_sql: true
+#         dialect: org.hibernate.dialect.MySQLDialect
+
+# # Swagger OpenAPI Documentation
+# springdoc:
+#   api-docs:
+#     path: /v3/api-docs
+#   swagger-ui:
+#     path: /swagger-ui.html
+#     operations-sorter: method
+#     tags-sorter: alpha

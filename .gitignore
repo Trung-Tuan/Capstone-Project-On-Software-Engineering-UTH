@@ -1,0 +1,25 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Backend
+backend/target/
+backend/out/
+backend/*.log
+
+# Frontend (if added later)
+node_modules/
+dist/
+build/
+*.local
+.env
+.env.*
+!.env.example
+

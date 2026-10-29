@@ -13,7 +13,11 @@ public enum ErrorCode {
     UNAUTHENTICATED(1004, "Chưa xác thực đăng nhập", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1005, "Bạn không có quyền thực hiện hành động này", HttpStatus.FORBIDDEN),
     RESOURCE_NOT_FOUND(1006, "Không tìm thấy tài nguyên yêu cầu", HttpStatus.NOT_FOUND),
-    INVALID_REQUEST(1007, "Dữ liệu yêu cầu không hợp lệ", HttpStatus.BAD_REQUEST);
+    INVALID_REQUEST(1007, "Dữ liệu yêu cầu không hợp lệ", HttpStatus.BAD_REQUEST),
+    INVALID_GOOGLE_TOKEN(1008, "Google ID Token không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED),
+    INVALID_SCHOOL_EMAIL(1009, "Chỉ chấp nhận tài khoản email trường học (@ut.edu.vn)", HttpStatus.FORBIDDEN),
+    USER_LOCKED(1010, "Tài khoản của bạn đã bị khóa do vi phạm quy định sử dụng", HttpStatus.FORBIDDEN),
+    INVALID_TOKEN(1011, "Token xác thực không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED);
 
     private final int code;
     private final String message;
@@ -25,4 +29,3 @@ public enum ErrorCode {
         this.statusCode = statusCode;
     }
 }
-

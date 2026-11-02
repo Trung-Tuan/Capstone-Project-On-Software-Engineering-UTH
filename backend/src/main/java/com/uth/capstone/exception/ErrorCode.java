@@ -17,7 +17,11 @@ public enum ErrorCode {
     INVALID_GOOGLE_TOKEN(1008, "Google ID Token không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED),
     INVALID_SCHOOL_EMAIL(1009, "Chỉ chấp nhận tài khoản email trường học (@ut.edu.vn)", HttpStatus.FORBIDDEN),
     USER_LOCKED(1010, "Tài khoản của bạn đã bị khóa do vi phạm quy định sử dụng", HttpStatus.FORBIDDEN),
-    INVALID_TOKEN(1011, "Token xác thực không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED);
+    INVALID_TOKEN(1011, "Token xác thực không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED),
+    TOO_MANY_IMAGES(1012, "Mỗi bài đăng chỉ được phép đính kèm tối đa 3 ảnh", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(1013, "Dung lượng mỗi ảnh không được vượt quá 5MB", HttpStatus.PAYLOAD_TOO_LARGE),
+    INVALID_IMAGE_FORMAT(1014, "Định dạng file không hợp lệ (chỉ chấp nhận ảnh JPG, JPEG, PNG, WEBP)", HttpStatus.BAD_REQUEST),
+    IMAGE_UPLOAD_FAILED(1015, "Lỗi trong quá trình nén hoặc tải ảnh lên hệ thống lưu trữ", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int code;
     private final String message;

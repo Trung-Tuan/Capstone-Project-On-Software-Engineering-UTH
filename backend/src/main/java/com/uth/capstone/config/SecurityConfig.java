@@ -42,19 +42,21 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // Public Auth Endpoint (Google OAuth2 Login)
                         .requestMatchers("/api/auth/google", "/auth/google").permitAll()
-                        // Public GET Endpoints (Tra cứu, tìm kiếm bài đăng, danh mục, địa điểm)
+                        // Public GET Endpoints (Tra cứu, tìm kiếm bài đăng, danh mục, địa điểm, xem ảnh Local Storage)
                         .requestMatchers(HttpMethod.GET,
                                 "/api/posts/**", "/posts/**",
                                 "/api/categories/**", "/categories/**",
-                                "/api/locations/**", "/locations/**"
+                                "/api/locations/**", "/locations/**",
+                                "/uploads/**"
                         ).permitAll()
                         // Cổng Quản trị & Kiểm duyệt (Admin / Security / SAC)
                         .requestMatchers("/api/admin/**", "/admin/**")
                         .hasAnyRole("ADMIN", "SECURITY", "SAC")
-                        // Các thao tác Đăng bài, Sửa/Xóa bài, Gửi/Xử lý Claim (Student / Staff / Admin / Security / SAC)
+                        // Các thao tác Đăng bài, Sửa/Xóa bài, Gửi/Xử lý Claim, Upload ảnh (Student / Staff / Admin / Security / SAC)
                         .requestMatchers(
                                 "/api/posts/**", "/posts/**",
                                 "/api/claims/**", "/claims/**",
+                                "/api/images/**", "/images/**",
                                 "/api/auth/me", "/auth/me",
                                 "/api/profile/**", "/profile/**"
                         ).hasAnyRole("STUDENT", "STAFF", "ADMIN", "SECURITY", "SAC")

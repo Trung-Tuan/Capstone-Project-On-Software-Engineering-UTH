@@ -13,6 +13,8 @@ desktop.ini
 backend/target/
 backend/out/
 backend/*.log
+backend/uploads/
+uploads/
 
 # Frontend (if added later)
 node_modules/

@@ -38,6 +38,9 @@ build/
 ### Log files ###
 *.log
 
+### Local Storage Uploads ###
+uploads/
+
 ### OS Files ###
 .DS_Store
 Thumbs.db

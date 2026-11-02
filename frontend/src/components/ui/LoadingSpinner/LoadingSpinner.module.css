@@ -1,0 +1,35 @@
+/* ── LoadingSpinner.module.css ──────────────────────────── */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.wrapper.fullScreen {
+  min-height: 100vh;
+  background: var(--bg-base);
+}
+
+.wrapper.inline {
+  padding: var(--space-8);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-subtle);
+  border-top-color: var(--color-primary-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner.sm { width: 20px; height: 20px; border-width: 2px; }
+.spinner.lg { width: 60px; height: 60px; border-width: 4px; }
+
+.label {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+}

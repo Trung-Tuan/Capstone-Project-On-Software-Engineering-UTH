@@ -1,0 +1,43 @@
+/* PostsPage.module.css */
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-8) 0 var(--space-6);
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-1);
+}
+
+.pageDesc { font-size: var(--font-size-sm); }
+
+.layout {
+  display: flex;
+  gap: var(--space-8);
+  align-items: flex-start;
+  padding-bottom: var(--space-16);
+}
+
+.main { flex: 1; min-width: 0; }
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-20);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-xl);
+  text-align: center;
+  font-size: 48px;
+  color: var(--text-muted);
+}
+
+.placeholder p { font-size: var(--font-size-md); }

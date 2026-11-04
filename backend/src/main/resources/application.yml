@@ -1,32 +1,61 @@
-# server:
-#   port: 8080
-#   servlet:
-#     context-path: /
+server:
+  port: 8080
+  servlet:
+    context-path: /
 
-# spring:
-#   application:
-#     name: capstone-backend
+spring:
+  application:
+    name: capstone-backend
 
-#   datasource:
-#     url: jdbc:mysql://localhost:3306/capstone_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-#     username: root
-#     password: password
-#     driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 20MB
 
-#   jpa:
-#     hibernate:
-#       ddl-auto: update
-#     show-sql: true
-#     properties:
-#       hibernate:
-#         format_sql: true
-#         dialect: org.hibernate.dialect.MySQLDialect
+  datasource:
+    url: jdbc:mysql://103.47.225.125:3306/uth_find_db?serverTimezone=UTC&characterEncoding=UTF-8
+    username: UTH_Find_db
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-# # Swagger OpenAPI Documentation
-# springdoc:
-#   api-docs:
-#     path: /v3/api-docs
-#   swagger-ui:
-#     path: /swagger-ui.html
-#     operations-sorter: method
-#     tags-sorter: alpha
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:c2VjcmV0LWtleS1mb3ItdXRoLWNhcHN0b25lLWxvc3QtYW5kLWZvdW5kLXN5c3RlbS0yMDI2LTI1NmJpdA==}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+  security:
+    allowed-email-domains: ${ALLOWED_EMAIL_DOMAINS:ut.edu.vn,uth.edu.vn}
+  storage:
+    # Chọn 'cloudinary' hoặc 'local' (tự động fallback sang 'local' nếu chưa điền key Cloudinary)
+    provider: ${STORAGE_PROVIDER:cloudinary}
+    local-dir: ${STORAGE_LOCAL_DIR:uploads}
+    max-files-per-post: ${MAX_FILES_PER_POST:3}
+    max-file-size-bytes: ${MAX_FILE_SIZE_BYTES:5242880}
+    compression-quality: ${IMAGE_COMPRESSION_QUALITY:0.75}
+    max-width: ${IMAGE_MAX_WIDTH:1280}
+    max-height: ${IMAGE_MAX_HEIGHT:1280}
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+    folder: ${CLOUDINARY_FOLDER:uth_lost_and_found}

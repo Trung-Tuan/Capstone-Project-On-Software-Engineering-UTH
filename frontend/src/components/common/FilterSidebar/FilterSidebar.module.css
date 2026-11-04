@@ -1,0 +1,330 @@
+/* ── FilterSidebar.module.css ───────────────────────────── */
+
+/* ── Desktop sidebar ─────────────────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: calc(var(--header-height) + var(--space-6));
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  height: fit-content;
+  max-height: calc(100vh - var(--header-height) - var(--space-12));
+  overflow-y: auto;
+}
+
+@media (max-width: 1023px) {
+  .sidebar { display: none; }
+}
+
+/* ── Mobile Drawer ───────────────────────────────────────── */
+.drawerOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: calc(var(--z-sidebar) - 1);
+  animation: fadeIn 0.2s ease;
+}
+
+.drawer {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 90vw);
+  background: var(--bg-surface);
+  z-index: var(--z-sidebar);
+  flex-direction: column;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideInRight 0.25s ease;
+}
+
+.drawer.open,
+.drawerOverlay.open { display: flex; }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  background: var(--bg-surface);
+  z-index: 1;
+}
+
+.drawerTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.drawerClose {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.drawerClose:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.drawerBody {
+  padding: var(--space-6);
+  flex: 1;
+}
+
+/* ── Filter card ─────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+  margin-bottom: var(--space-4);
+}
+
+.cardTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-4);
+}
+
+/* ── Type toggle ─────────────────────────────────────────── */
+.typeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.typeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.typeBtn:hover {
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.typeBtn.active {
+  border-color: var(--color-primary-500);
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-primary-300);
+}
+
+.typeBtn.lostActive {
+  border-color: var(--color-lost-border);
+  background: var(--color-lost-bg);
+  color: var(--color-lost-text);
+}
+
+.typeBtn.foundActive {
+  border-color: var(--color-found-border);
+  background: var(--color-found-bg);
+  color: var(--color-found-text);
+}
+
+.typeBtnIcon { font-size: 18px; }
+
+/* ── Search input ────────────────────────────────────────── */
+.searchWrap {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 14px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-8);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.searchInput::placeholder { color: var(--text-muted); }
+
+.searchInput:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ── Select ──────────────────────────────────────────────── */
+.select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-8);
+}
+
+.select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.select option { background: var(--bg-overlay); color: var(--text-primary); }
+
+/* ── Date range ──────────────────────────────────────────── */
+.dateGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.dateLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+  display: block;
+}
+
+.dateInput {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  outline: none;
+  transition: border-color var(--transition-fast);
+  color-scheme: dark;
+}
+
+.dateInput:focus { border-color: var(--border-focus); }
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btnRow {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.btnApply {
+  flex: 1;
+  padding: var(--space-3);
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border: none;
+  transition: opacity var(--transition-fast), transform var(--transition-spring);
+}
+
+.btnApply:hover { opacity: 0.9; transform: translateY(-1px); }
+
+.btnReset {
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnReset:hover {
+  border-color: var(--border-default);
+  color: var(--text-primary);
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* ── Active filter count badge ───────────────────────────── */
+.filterBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--space-1);
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  margin-left: var(--space-2);
+}
+
+/* ── Filter trigger button (mobile) ─────────────────────── */
+.filterTrigger {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filterTrigger:hover {
+  border-color: var(--border-default);
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
+}
+
+@media (max-width: 1023px) {
+  .filterTrigger { display: flex; }
+}

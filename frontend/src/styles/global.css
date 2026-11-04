@@ -1,0 +1,399 @@
+/* ============================================================
+   LOST & FOUND UTH – Global CSS Design System
+   Dark mode with Indigo/Purple theme
+   ============================================================ */
+
+/* ── Google Fonts ────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── CSS Custom Properties (Design Tokens) ───────────────── */
+:root {
+  /* --- Color Palette --- */
+  --color-primary-50:  #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-200: #c7d2fe;
+  --color-primary-300: #a5b4fc;
+  --color-primary-400: #818cf8;
+  --color-primary-500: #6366f1;  /* Main brand color */
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+  --color-primary-950: #1e1b4b;
+
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #9333ea;
+
+  /* --- Background --- */
+  --bg-base:        #0a0a0f;
+  --bg-surface:     #111118;
+  --bg-elevated:    #1a1a27;
+  --bg-overlay:     #1e1e2e;
+  --bg-card:        #16162a;
+  --bg-card-hover:  #1e1e35;
+  --bg-input:       #0f0f1a;
+
+  /* --- Text --- */
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+  --text-inverse:   #0a0a0f;
+
+  /* --- Border --- */
+  --border-subtle:  rgba(99, 102, 241, 0.12);
+  --border-default: rgba(99, 102, 241, 0.25);
+  --border-strong:  rgba(99, 102, 241, 0.45);
+  --border-focus:   #6366f1;
+
+  /* --- Status Colors --- */
+  --color-success-bg:   rgba(34, 197, 94, 0.15);
+  --color-success-text: #4ade80;
+  --color-success:      #22c55e;
+
+  --color-warning-bg:   rgba(234, 179, 8, 0.15);
+  --color-warning-text: #facc15;
+  --color-warning:      #eab308;
+
+  --color-error-bg:     rgba(239, 68, 68, 0.15);
+  --color-error-text:   #f87171;
+  --color-error:        #ef4444;
+
+  --color-info-bg:      rgba(99, 102, 241, 0.15);
+  --color-info-text:    #818cf8;
+  --color-info:         #6366f1;
+
+  /* --- Lost/Found badge colors --- */
+  --color-lost-bg:      rgba(239, 68, 68, 0.18);
+  --color-lost-text:    #fca5a5;
+  --color-lost-border:  rgba(239, 68, 68, 0.35);
+
+  --color-found-bg:     rgba(34, 197, 94, 0.18);
+  --color-found-text:   #86efac;
+  --color-found-border: rgba(34, 197, 94, 0.35);
+
+  /* --- Gradients --- */
+  --gradient-primary:    linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --gradient-hero:       linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%);
+  --gradient-card:       linear-gradient(145deg, #16162a 0%, #1a1a2e 100%);
+  --gradient-glow:       radial-gradient(ellipse at center, rgba(99,102,241,0.15) 0%, transparent 70%);
+
+  /* --- Glow/Shadow --- */
+  --shadow-sm:    0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md:    0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg:    0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-glow:  0 0 24px rgba(99, 102, 241, 0.25);
+  --shadow-card:  0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-subtle);
+
+  /* --- Typography --- */
+  --font-family:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs:  0.75rem;   /* 12px */
+  --font-size-sm:  0.875rem;  /* 14px */
+  --font-size-md:  1rem;      /* 16px */
+  --font-size-lg:  1.125rem;  /* 18px */
+  --font-size-xl:  1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:    700;
+  --font-weight-extrabold: 800;
+  --line-height-tight:  1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* --- Spacing --- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  /* --- Radius --- */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* --- Transitions --- */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+  --transition-spring: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- Layout --- */
+  --header-height: 64px;
+  --sidebar-width: 280px;
+  --content-max-width: 1280px;
+  --container-padding: var(--space-4);
+
+  /* --- Z-index --- */
+  --z-base:      0;
+  --z-raised:    10;
+  --z-dropdown:  100;
+  --z-sidebar:   200;
+  --z-header:    300;
+  --z-modal:     400;
+  --z-toast:     500;
+  --z-tooltip:   600;
+}
+
+/* ── CSS Reset & Base ────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Typography ──────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-md); }
+
+p {
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+a {
+  color: var(--color-primary-400);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover { color: var(--color-primary-300); }
+
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font-family: var(--font-family);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input, textarea, select {
+  font-family: var(--font-family);
+}
+
+ul, ol { list-style: none; }
+
+/* ── Scrollbar Styling ───────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-surface); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary-800);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary-600); }
+
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: var(--color-primary-800) var(--bg-surface); }
+
+/* ── Selection ───────────────────────────────────────────── */
+::selection {
+  background-color: rgba(99, 102, 241, 0.35);
+  color: var(--text-primary);
+}
+
+/* ── Focus styles ────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Utility classes ─────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(99, 102, 241, 0.3); }
+  50%       { box-shadow: 0 0 24px rgba(99, 102, 241, 0.6); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in       { animation: fadeIn var(--transition-normal) ease both; }
+.animate-slide-in-left { animation: slideInLeft var(--transition-normal) ease both; }
+
+/* ── Skeleton loader ─────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--bg-overlay)  50%,
+    var(--bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ── Glass effect ────────────────────────────────────────── */
+.glass {
+  background: rgba(30, 30, 46, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ── Badge variants ──────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.badge-lost {
+  background: var(--color-lost-bg);
+  color: var(--color-lost-text);
+  border-color: var(--color-lost-border);
+}
+
+.badge-found {
+  background: var(--color-found-bg);
+  color: var(--color-found-text);
+  border-color: var(--color-found-border);
+}
+
+.badge-pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.badge-approved {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.badge-rejected {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ── Responsive breakpoints reference
+   xs:  < 480px   (mobile small)
+   sm:  ≥ 480px   (mobile large)
+   md:  ≥ 768px   (tablet)
+   lg:  ≥ 1024px  (laptop)
+   xl:  ≥ 1280px  (desktop)
+   2xl: ≥ 1536px  (large desktop)
+──────────────────────────────────────── */
+@media (min-width: 480px) {
+  :root { --container-padding: var(--space-5); }
+}
+@media (min-width: 768px) {
+  :root { --container-padding: var(--space-6); }
+}
+@media (min-width: 1024px) {
+  :root { --container-padding: var(--space-8); }
+}

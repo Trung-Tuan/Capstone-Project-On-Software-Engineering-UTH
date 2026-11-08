@@ -21,7 +21,13 @@ public enum ErrorCode {
     TOO_MANY_IMAGES(1012, "Mỗi bài đăng chỉ được phép đính kèm tối đa 3 ảnh", HttpStatus.BAD_REQUEST),
     FILE_TOO_LARGE(1013, "Dung lượng mỗi ảnh không được vượt quá 5MB", HttpStatus.PAYLOAD_TOO_LARGE),
     INVALID_IMAGE_FORMAT(1014, "Định dạng file không hợp lệ (chỉ chấp nhận ảnh JPG, JPEG, PNG, WEBP)", HttpStatus.BAD_REQUEST),
-    IMAGE_UPLOAD_FAILED(1015, "Lỗi trong quá trình nén hoặc tải ảnh lên hệ thống lưu trữ", HttpStatus.INTERNAL_SERVER_ERROR);
+    IMAGE_UPLOAD_FAILED(1015, "Lỗi trong quá trình nén hoặc tải ảnh lên hệ thống lưu trữ", HttpStatus.INTERNAL_SERVER_ERROR),
+    POST_NOT_FOUND(1016, "Không tìm thấy bài đăng yêu cầu", HttpStatus.NOT_FOUND),
+    CATEGORY_NOT_FOUND(1017, "Không tìm thấy danh mục đồ vật", HttpStatus.NOT_FOUND),
+    LOCATION_NOT_FOUND(1018, "Không tìm thấy địa điểm trong trường", HttpStatus.NOT_FOUND),
+    NOT_POST_AUTHOR(1019, "Bạn chỉ có quyền thao tác trên bài đăng của chính mình", HttpStatus.FORBIDDEN),
+    POST_ALREADY_CLOSED(1020, "Không thể chỉnh sửa bài đăng đã đóng hoặc đã hoàn tất trao trả", HttpStatus.BAD_REQUEST),
+    INVALID_POST_STATUS_TRANSITION(1021, "Tác giả chỉ được phép đổi trạng thái bài đăng thành Đã nhận lại (RESOLVED hoặc CLAIMED)", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;

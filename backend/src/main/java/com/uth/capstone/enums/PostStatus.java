@@ -9,6 +9,7 @@ import lombok.Getter;
 public enum PostStatus {
     PENDING("Chờ duyệt"),
     APPROVED("Đã duyệt / Đang hiển thị"),
+    CLAIMED("Đã nhận lại đồ"),
     RESOLVED("Đã giải quyết / Đã tìm thấy chủ"),
     EXPIRED("Hết hạn hiển thị"),
     REJECTED("Bị từ chối duyệt");
@@ -19,4 +20,3 @@ public enum PostStatus {
         this.description = description;
     }
 }
-

@@ -1,5 +1,6 @@
 package com.uth.capstone.service;
 
+import com.uth.capstone.dto.request.CreatePostRequest;
 import com.uth.capstone.dto.request.UpdatePostRequest;
 import com.uth.capstone.dto.request.UpdatePostStatusRequest;
 import com.uth.capstone.dto.response.PostResponse;
@@ -9,19 +10,24 @@ import com.uth.capstone.entity.ItemPost;
 import com.uth.capstone.entity.Location;
 import com.uth.capstone.entity.User;
 import com.uth.capstone.enums.PostStatus;
+import com.uth.capstone.enums.Role;
+import com.uth.capstone.enums.UserStatus;
 import com.uth.capstone.exception.AppException;
 import com.uth.capstone.exception.ErrorCode;
 import com.uth.capstone.repository.CategoryRepository;
 import com.uth.capstone.repository.ItemPostRepository;
 import com.uth.capstone.repository.LocationRepository;
+import com.uth.capstone.repository.UserRepository;
 import com.uth.capstone.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -29,6 +35,7 @@ import java.util.Set;
 
 /**
  * Service xử lý nghiệp vụ cho Bài đăng Mất đồ / Nhặt được (ItemPost):
+ * - Tạo mới bài đăng (kiểm tra danh mục, địa điểm, tối đa 3 ảnh, gán trạng thái PENDING hoặc APPROVED).
  * - Xem chi tiết bài đăng và ẩn số điện thoại cá nhân (PhoneNumber) của người đăng trên dữ liệu công khai.
  * - Chỉ cho phép tác giả chỉnh sửa bài đăng của chính mình khi bài chưa đóng.
  * - Cho phép tác giả xóa bài đăng hoặc đổi trạng thái sang "Đã nhận lại" (RESOLVED / CLAIMED).
@@ -38,6 +45,16 @@ import java.util.Set;
 public class PostService {
 
     private static final int MAX_IMAGES_PER_POST = 3;
+    private static final int MAX_IMAGE_URL_LENGTH = 500;
+
+    /**
+     * Các vai trò quản trị/bảo vệ/CTSV được phép tự động duyệt hiển thị bài đăng khi tạo mới.
+     */
+    private static final Set<Role> AUTO_APPROVED_ROLES = EnumSet.of(
+            Role.ADMIN,
+            Role.SECURITY,
+            Role.SAC
+    );
 
     /**
      * Các trạng thái bài đăng đã đóng (không còn cho phép tác giả chỉnh sửa nội dung).
@@ -60,6 +77,49 @@ public class PostService {
     private final ItemPostRepository itemPostRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
+    private final UserRepository userRepository;
+
+    @Value("${app.post.auto-approve:false}")
+    private boolean autoApprove;
+
+    /**
+     * Tạo mới bài đăng Mất đồ / Nhặt được:
+     * Kiểm tra danh mục, địa điểm, giới hạn ảnh đính kèm (tối đa 3 ảnh)
+     * và lưu vào CSDL ở trạng thái PENDING (chờ duyệt) hoặc APPROVED (nếu tự động duyệt).
+     */
+    @Transactional
+    public PostResponse createPost(CreatePostRequest request) {
+        CustomUserDetails currentUser = getCurrentUserDetails();
+
+        User author = userRepository.findById(currentUser.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (author.getStatus() == UserStatus.LOCKED) {
+            throw new AppException(ErrorCode.USER_LOCKED);
+        }
+
+        Category category = findCategoryById(request.getCategoryId());
+        Location location = findLocationById(request.getLocationId());
+
+        ItemPost post = ItemPost.builder()
+                .user(author)
+                .title(request.getTitle().trim())
+                .itemType(request.getItemType())
+                .category(category)
+                .location(location)
+                .incidentDate(request.getIncidentDate())
+                .description(request.getDescription().trim())
+                .status(resolveInitialPostStatus(author))
+                .images(new ArrayList<>())
+                .build();
+
+        if (request.getImageUrls() != null) {
+            attachPostImages(post, request.getImageUrls(), false);
+        }
+
+        ItemPost savedPost = itemPostRepository.save(post);
+        return toPublicPostResponse(savedPost);
+    }
 
     /**
      * Lấy chi tiết bài đăng theo ID và ẩn trường PhoneNumber của người đăng trên dữ liệu công khai.
@@ -91,11 +151,8 @@ public class PostService {
         }
 
         // 3. Kiểm tra danh mục và địa điểm
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-
-        Location location = locationRepository.findById(request.getLocationId())
-                .orElseThrow(() -> new AppException(ErrorCode.LOCATION_NOT_FOUND));
+        Category category = findCategoryById(request.getCategoryId());
+        Location location = findLocationById(request.getLocationId());
 
         // 4. Cập nhật thông tin bài đăng
         post.setTitle(request.getTitle().trim());
@@ -107,23 +164,7 @@ public class PostService {
 
         // 5. Cập nhật danh sách ảnh đính kèm (nếu client có gửi kèm imageUrls)
         if (request.getImageUrls() != null) {
-            List<String> validUrls = request.getImageUrls().stream()
-                    .filter(StringUtils::hasText)
-                    .map(String::trim)
-                    .toList();
-
-            if (validUrls.size() > MAX_IMAGES_PER_POST) {
-                throw new AppException(ErrorCode.TOO_MANY_IMAGES);
-            }
-
-            post.getImages().clear();
-            for (String url : validUrls) {
-                ItemImage itemImage = ItemImage.builder()
-                        .post(post)
-                        .imageUrl(url)
-                        .build();
-                post.getImages().add(itemImage);
-            }
+            attachPostImages(post, request.getImageUrls(), true);
         }
 
         ItemPost updatedPost = itemPostRepository.save(post);
@@ -176,6 +217,52 @@ public class PostService {
         post.setStatus(targetStatus);
         ItemPost savedPost = itemPostRepository.save(post);
         return toPublicPostResponse(savedPost);
+    }
+
+    private Category findCategoryById(Integer categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+    }
+
+    private Location findLocationById(Integer locationId) {
+        return locationRepository.findById(locationId)
+                .orElseThrow(() -> new AppException(ErrorCode.LOCATION_NOT_FOUND));
+    }
+
+    private PostStatus resolveInitialPostStatus(User author) {
+        if (autoApprove || (author.getRole() != null && AUTO_APPROVED_ROLES.contains(author.getRole()))) {
+            return PostStatus.APPROVED;
+        }
+        return PostStatus.PENDING;
+    }
+
+    private void attachPostImages(ItemPost post, List<String> imageUrls, boolean replaceExisting) {
+        List<String> validUrls = imageUrls.stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .toList();
+
+        if (validUrls.size() > MAX_IMAGES_PER_POST) {
+            throw new AppException(ErrorCode.TOO_MANY_IMAGES);
+        }
+
+        for (String url : validUrls) {
+            if (url.length() > MAX_IMAGE_URL_LENGTH) {
+                throw new AppException(ErrorCode.INVALID_REQUEST);
+            }
+        }
+
+        if (replaceExisting) {
+            post.getImages().clear();
+        }
+
+        for (String url : validUrls) {
+            ItemImage itemImage = ItemImage.builder()
+                    .post(post)
+                    .imageUrl(url)
+                    .build();
+            post.getImages().add(itemImage);
+        }
     }
 
     private void verifyPostAuthor(ItemPost post, CustomUserDetails currentUser) {

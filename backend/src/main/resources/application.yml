@@ -47,6 +47,8 @@ app:
     client-id: ${GOOGLE_CLIENT_ID:}
   security:
     allowed-email-domains: ${ALLOWED_EMAIL_DOMAINS:ut.edu.vn,uth.edu.vn}
+  post:
+    auto-approve: ${POST_AUTO_APPROVE:false}
   storage:
     # Chọn 'cloudinary' hoặc 'local' (tự động fallback sang 'local' nếu chưa điền key Cloudinary)
     provider: ${STORAGE_PROVIDER:cloudinary}

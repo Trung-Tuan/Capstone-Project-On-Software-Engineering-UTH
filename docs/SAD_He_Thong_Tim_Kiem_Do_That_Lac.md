@@ -1,8 +1,8 @@
 # Tài liệu Kiến trúc Giải pháp (SAD) — Hệ thống Tìm kiếm Đồ thất lạc trong Trường học
 
-> **Phiên bản:** 1.1 
+> **Phiên bản:** 1.0  
 > **Cập nhật lần cuối:** 14/11/2026  
-> **Dự án:** Hệ thống Tìm kiếm Đồ thất lạc trong Trường học — Campus Lost & Found System.
+> **Dự án:** Hệ thống Tìm kiếm Đồ thất lạc trong Trường học — Campus Lost & Found System  
 > **Đơn vị áp dụng:** Trường Đại học Giao thông vận tải TP.HCM (UTH)  
 > **Mục đích:** Tài liệu hóa kiến trúc giải pháp sử dụng các thực hành tốt nhất hiện đại
 ---
@@ -1049,22 +1049,21 @@ flowchart TD
 - **SSO / OAuth 2.0**: Single Sign-On / Giao thức ủy quyền xác thực qua Google Identity Services.
 
 ### B. Tham khảo
-- [Tài liệu Đặc tả Yêu cầu Phần mềm — SRS CLFS v1.0](file:///d:/%C4%90%E1%BA%A0I%20H%E1%BB%8CC%20%C4%90%E1%BB%AANG%20H%E1%BB%8CC%20%C4%90%E1%BA%A0I/N%C4%82M%20BA/%C4%90%E1%BB%93%20%C3%81n%20Th%E1%BB%B1c%20T%E1%BA%BF%20CNPM/Software%20Requirements%20Specification%20%28SRS%29%20Template%20%281%29.docx)
-- [Tài liệu Phân rã Công việc Kỹ thuật — WBS CLFS v1.0](file:///d:/%C4%90%E1%BA%A0I%20H%E1%BB%8CC%20%C4%90%E1%BB%AANG%20H%E1%BB%8CC%20%C4%90%E1%BA%A0I/N%C4%82M%20BA/%C4%90%E1%BB%93%20%C3%81n%20Th%E1%BB%B1c%20T%E1%BA%BF%20CNPM/WBS_He_Thong_Tim_Kiem_Do_That_Lac_v1.0.docx)
-- [Thiết kế Cơ sở dữ liệu — ERD Schema SQL](file:///d:/%C4%90%E1%BA%A0I%20H%E1%BB%8CC%20%C4%90%E1%BB%AANG%20H%E1%BB%8CC%20%C4%90%E1%BA%A0I/N%C4%82M%20BA/%C4%90%E1%BB%93%20%C3%81n%20Th%E1%BB%B1c%20T%E1%BA%BF%20CNPM/ERD/schema.sql)
-- [Tài liệu Kiến trúc Backend — README.md](file:///d:/%C4%90%E1%BA%A0I%20H%E1%BB%8CC%20%C4%90%E1%BB%AANG%20H%E1%BB%8CC%20%C4%90%E1%BA%A0I/N%C4%82M%20BA/%C4%90%E1%BB%93%20%C3%81n%20Th%E1%BB%B1c%20T%E1%BA%BF%20CNPM/Capstone-Project-On-Software-Engineering-UTH/README.md)
-- [Bài giảng Thiết kế Phần mềm — SE Ch3 Software Design](file:///d:/%C4%90%E1%BA%A0I%20H%E1%BB%8CC%20%C4%90%E1%BB%AANG%20H%E1%BB%8CC%20%C4%90%E1%BA%A0I/N%C4%82M%20BA/%C4%90%E1%BB%93%20%C3%81n%20Th%E1%BB%B1c%20T%E1%BA%BF%20CNPM/SE%20Ch3%20-%20Software%20Design.pdf)
+- Tài liệu Đặc tả Yêu cầu Phần mềm — *Software Requirements Specification (SRS) – Campus Lost & Found System (CLFS v1.0)*
+- Tài liệu Phân rã Công việc Kỹ thuật — *Work Breakdown Structure (WBS) – Hệ thống Tìm kiếm Đồ thất lạc (v1.0)*
+- Thiết kế Cơ sở dữ liệu — *ERD Schema SQL (`schema.sql` / `uth_find_db`)*
+- [Tài liệu Kiến trúc Backend — README.md](../README.md)
+- Tài liệu Bài giảng Thiết kế Phần mềm — *Software Engineering Chapter 3: Software Design*
 - [Mô hình C4 (C4 Model for Visualizing Software Architecture)](https://c4model.com/)
 - [IEEE Std 830-1998 & Khung nhìn Kiến trúc 4+1](https://en.wikipedia.org/wiki/4%2B1_architectural_view_model)
 
 ### C. Lịch sử Tài liệu
 | Phiên bản | Ngày | Tác giả | Thay đổi |
 |-----------|------|---------|----------|
-| 1.0 | 4/11/2026 | Nhóm Đồ án CNPM UTH (Việt Quốc, Trung Tuấn, LT) | Khởi tạo Tài liệu Kiến trúc Giải pháp (SAD) cho hệ thống CLFS v1.0. |
-| 1.1 | 14/11/2026 | Nhóm Đồ án CNPM UTH (Việt Quốc, Trung Tuấn, LT) | Nâng cấp toàn diện: bổ sung đánh giá Cohesion & Coupling, C4 Cấp 3 cho Frontend SPA, Sơ đồ State Machine (`PostStatus`), Chiến lược Hybrid Search tiếng Việt, Bảng Đặc tả API & ErrorCode, Ma trận Phân quyền RBAC 5 vai trò, 3 Golden Rules UI và Sơ đồ Điều hướng Màn hình. |
+| 1.0 | 14/11/2026 | Nhóm Đồ án CNPM UTH | Hoàn thiện Tài liệu Kiến trúc Giải pháp (SAD) cho hệ thống Tìm kiếm Đồ thất lạc trong Trường học (CLFS). |
 
 ---
 
-**Trạng thái Tài liệu**: Bản chính thức v1.1 (Hoàn thiện)  
+**Trạng thái Tài liệu**: Bản chính thức (Hoàn thiện)  
 **Ngày Xem xét Tiếp theo**: Theo từng giai đoạn Sprint / WBS  
-**Phê duyệt**: Việt Quốc (Technical Lead / Backend Developer)
+**Phê duyệt**: Nhóm Đồ án CNPM UTH

@@ -1,43 +1,62 @@
 package com.uth.capstone.service;
 
+import com.uth.capstone.dto.request.PostSearchRequest;
 import com.uth.capstone.dto.request.UpdatePostRequest;
 import com.uth.capstone.dto.request.UpdatePostStatusRequest;
+import com.uth.capstone.dto.response.PageResponse;
 import com.uth.capstone.dto.response.PostResponse;
 import com.uth.capstone.entity.Category;
 import com.uth.capstone.entity.ItemImage;
 import com.uth.capstone.entity.ItemPost;
 import com.uth.capstone.entity.Location;
 import com.uth.capstone.entity.User;
+import com.uth.capstone.enums.ItemType;
+import com.uth.capstone.enums.PostFilterStatus;
+import com.uth.capstone.enums.PostSortBy;
 import com.uth.capstone.enums.PostStatus;
 import com.uth.capstone.exception.AppException;
 import com.uth.capstone.exception.ErrorCode;
 import com.uth.capstone.repository.CategoryRepository;
 import com.uth.capstone.repository.ItemPostRepository;
+import com.uth.capstone.repository.ItemPostRepositoryCustom.PostSearchSlice;
 import com.uth.capstone.repository.LocationRepository;
 import com.uth.capstone.security.CustomUserDetails;
+import com.uth.capstone.util.FullTextQueryHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Service xử lý nghiệp vụ cho Bài đăng Mất đồ / Nhặt được (ItemPost):
+ * - Tìm kiếm Full-text trên Title & Description, bộ lọc kết hợp 4 tiêu chí & sắp xếp tối ưu < 1.5s với 50.000+ bản ghi.
  * - Xem chi tiết bài đăng và ẩn số điện thoại cá nhân (PhoneNumber) của người đăng trên dữ liệu công khai.
  * - Chỉ cho phép tác giả chỉnh sửa bài đăng của chính mình khi bài chưa đóng.
  * - Cho phép tác giả xóa bài đăng hoặc đổi trạng thái sang "Đã nhận lại" (RESOLVED / CLAIMED).
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
     private static final int MAX_IMAGES_PER_POST = 3;
+    private static final int MAX_PAGE_SIZE = 100;
 
     /**
      * Các trạng thái bài đăng đã đóng (không còn cho phép tác giả chỉnh sửa nội dung).
@@ -60,6 +79,85 @@ public class PostService {
     private final ItemPostRepository itemPostRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
+
+    /**
+     * Tìm kiếm Full-text trên Title & Description kết hợp bộ lọc 4 tiêu chí:
+     * 1. Trạng thái (Cần tìm / Nhặt được / Đã hoàn trả)
+     * 2. Danh mục (CategoryID)
+     * 3. Khu vực / Tòa nhà (LocationID / BuildingName)
+     * 4. Khoảng thời gian (Từ ngày - Đến ngày)
+     * Và hỗ trợ sắp xếp theo Mới nhất, Cũ nhất, Độ liên quan của từ khóa.
+     */
+    @Transactional(readOnly = true)
+    public PageResponse<PostResponse> searchPosts(
+            String keyword,
+            String status,
+            String itemType,
+            Integer categoryId,
+            Integer locationId,
+            String buildingName,
+            String fromDate,
+            String toDate,
+            String sortBy,
+            int page,
+            int size
+    ) {
+        long startNs = System.nanoTime();
+
+        PostSearchRequest searchRequest = buildSearchRequest(
+                keyword, status, itemType, categoryId, locationId, buildingName,
+                fromDate, toDate, sortBy, page, size
+        );
+
+        PostSearchSlice slice = itemPostRepository.searchPostIds(searchRequest);
+
+        List<PostResponse> items;
+        if (slice.rows().isEmpty()) {
+            items = Collections.emptyList();
+        } else {
+            List<Integer> orderedIds = slice.rows().stream()
+                    .map(PostSearchSlice.PostIdWithScore::postId)
+                    .toList();
+
+            Map<Integer, ItemPost> postMap = itemPostRepository.findAllWithDetailsByPostIdIn(orderedIds)
+                    .stream()
+                    .collect(Collectors.toMap(ItemPost::getPostId, Function.identity(), (a, b) -> a));
+
+            items = slice.rows().stream()
+                    .map(row -> {
+                        ItemPost post = postMap.get(row.postId());
+                        if (post == null) {
+                            return null;
+                        }
+                        PostResponse dto = toPublicPostResponse(post);
+                        dto.setRelevanceScore(row.relevanceScore());
+                        return dto;
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+        }
+
+        long totalElements = slice.totalElements();
+        int totalPages = totalElements == 0
+                ? 0
+                : (int) Math.ceil((double) totalElements / searchRequest.getSize());
+        long queryTimeMs = (System.nanoTime() - startNs) / 1_000_000L;
+
+        log.debug("GET /posts executed in {} ms (totalElements={}, page={}, size={}, sortBy={})",
+                queryTimeMs, totalElements, searchRequest.getPage(), searchRequest.getSize(), searchRequest.getSortBy());
+
+        return PageResponse.<PostResponse>builder()
+                .items(items)
+                .page(searchRequest.getPage())
+                .size(searchRequest.getSize())
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .hasNext(searchRequest.getPage() + 1 < totalPages)
+                .hasPrevious(searchRequest.getPage() > 0 && totalPages > 0)
+                .sortBy(searchRequest.getSortBy().name())
+                .queryTimeMs(queryTimeMs)
+                .build();
+    }
 
     /**
      * Lấy chi tiết bài đăng theo ID và ẩn trường PhoneNumber của người đăng trên dữ liệu công khai.
@@ -178,6 +276,138 @@ public class PostService {
         return toPublicPostResponse(savedPost);
     }
 
+    private PostSearchRequest buildSearchRequest(
+            String keyword,
+            String status,
+            String itemType,
+            Integer categoryId,
+            Integer locationId,
+            String buildingName,
+            String fromDate,
+            String toDate,
+            String sortBy,
+            int page,
+            int size
+    ) {
+        String sanitizedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        boolean hasKeyword = FullTextQueryHelper.parse(sanitizedKeyword).isHasKeyword();
+
+        PostFilterStatus filterStatus = PostFilterStatus.fromString(status);
+        ItemType parsedItemType = parseItemType(itemType);
+
+        List<PostStatus> resolvedStatuses;
+        ItemType resolvedItemType;
+
+        if (filterStatus == null) {
+            resolvedStatuses = PostFilterStatus.DEFAULT_PUBLIC_STATUSES;
+            resolvedItemType = parsedItemType;
+        } else if (filterStatus == PostFilterStatus.LOST) {
+            if (parsedItemType == ItemType.FOUND) {
+                throw new AppException(ErrorCode.INVALID_FILTER_PARAMETER);
+            }
+            resolvedItemType = ItemType.LOST;
+            resolvedStatuses = List.of(PostStatus.APPROVED);
+        } else if (filterStatus == PostFilterStatus.FOUND) {
+            if (parsedItemType == ItemType.LOST) {
+                throw new AppException(ErrorCode.INVALID_FILTER_PARAMETER);
+            }
+            resolvedItemType = ItemType.FOUND;
+            resolvedStatuses = List.of(PostStatus.APPROVED);
+        } else if (filterStatus == PostFilterStatus.RETURNED) {
+            resolvedStatuses = PostFilterStatus.RETURNED_STATUSES;
+            resolvedItemType = parsedItemType;
+        } else if (filterStatus == PostFilterStatus.ALL) {
+            resolvedStatuses = null;
+            resolvedItemType = parsedItemType;
+        } else {
+            resolvedStatuses = List.of(PostStatus.valueOf(filterStatus.name()));
+            resolvedItemType = parsedItemType;
+        }
+
+        LocalDateTime fromDateTime = parseStartDateTime(fromDate);
+        ParsedEndDate parsedEndDate = parseEndDateTime(toDate);
+
+        validateDateRange(fromDateTime, parsedEndDate);
+
+        PostSortBy parsedSortBy = PostSortBy.fromString(sortBy, hasKeyword);
+        PostSortBy effectiveSortBy = (parsedSortBy == PostSortBy.RELEVANCE && !hasKeyword)
+                ? PostSortBy.NEWEST
+                : parsedSortBy;
+
+        int safePage = Math.max(0, page);
+        int safeSize = Math.min(Math.max(1, size), MAX_PAGE_SIZE);
+
+        return PostSearchRequest.builder()
+                .keyword(sanitizedKeyword)
+                .statuses(resolvedStatuses)
+                .itemType(resolvedItemType)
+                .categoryId(categoryId)
+                .locationId(locationId)
+                .buildingName(StringUtils.hasText(buildingName) ? buildingName.trim() : null)
+                .fromDateTime(fromDateTime)
+                .toDateTime(parsedEndDate.dateTime())
+                .toDateExclusive(parsedEndDate.exclusive())
+                .sortBy(effectiveSortBy)
+                .page(safePage)
+                .size(safeSize)
+                .build();
+    }
+
+    private ItemType parseItemType(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        try {
+            return ItemType.valueOf(value.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            throw new AppException(ErrorCode.INVALID_FILTER_PARAMETER);
+        }
+    }
+
+    private LocalDateTime parseStartDateTime(String rawDate) {
+        if (!StringUtils.hasText(rawDate)) {
+            return null;
+        }
+        String trimmed = rawDate.trim();
+        try {
+            if (trimmed.length() == 10) {
+                return LocalDate.parse(trimmed).atStartOfDay();
+            }
+            return LocalDateTime.parse(trimmed);
+        } catch (DateTimeParseException ex) {
+            throw new AppException(ErrorCode.INVALID_FILTER_PARAMETER);
+        }
+    }
+
+    private ParsedEndDate parseEndDateTime(String rawDate) {
+        if (!StringUtils.hasText(rawDate)) {
+            return new ParsedEndDate(null, false);
+        }
+        String trimmed = rawDate.trim();
+        try {
+            if (trimmed.length() == 10) {
+                // Cộng 1 ngày và dùng '<' để bao trọn tới 23:59:59, tránh lỗi làm tròn DATETIME(0) trong MySQL
+                return new ParsedEndDate(LocalDate.parse(trimmed).plusDays(1).atStartOfDay(), true);
+            }
+            return new ParsedEndDate(LocalDateTime.parse(trimmed), false);
+        } catch (DateTimeParseException ex) {
+            throw new AppException(ErrorCode.INVALID_FILTER_PARAMETER);
+        }
+    }
+
+    private void validateDateRange(LocalDateTime fromDateTime, ParsedEndDate endDate) {
+        if (fromDateTime == null || endDate.dateTime() == null) {
+            return;
+        }
+        if (endDate.exclusive()) {
+            if (!fromDateTime.isBefore(endDate.dateTime())) {
+                throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+            }
+        } else if (fromDateTime.isAfter(endDate.dateTime())) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+    }
+
     private void verifyPostAuthor(ItemPost post, CustomUserDetails currentUser) {
         User author = post.getUser();
         if (author == null || !author.getUserId().equals(currentUser.getUserId())) {
@@ -261,5 +491,7 @@ public class PostService {
                 .imageUrls(imageUrls)
                 .build();
     }
-}
 
+    private record ParsedEndDate(LocalDateTime dateTime, boolean exclusive) {
+    }
+}

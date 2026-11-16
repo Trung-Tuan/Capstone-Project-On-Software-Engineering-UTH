@@ -29,6 +29,7 @@ public class PostResponse {
     private LocalDateTime incidentDate;
     private PostStatus status;
     private LocalDateTime createdAt;
+    private Double relevanceScore;
 
     private CategoryInfo category;
     private LocationInfo location;

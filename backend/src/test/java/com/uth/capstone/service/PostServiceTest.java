@@ -1,14 +1,17 @@
 package com.uth.capstone.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uth.capstone.dto.request.PostSearchRequest;
 import com.uth.capstone.dto.request.UpdatePostRequest;
 import com.uth.capstone.dto.request.UpdatePostStatusRequest;
+import com.uth.capstone.dto.response.PageResponse;
 import com.uth.capstone.dto.response.PostResponse;
 import com.uth.capstone.entity.Category;
 import com.uth.capstone.entity.ItemPost;
 import com.uth.capstone.entity.Location;
 import com.uth.capstone.entity.User;
 import com.uth.capstone.enums.ItemType;
+import com.uth.capstone.enums.PostSortBy;
 import com.uth.capstone.enums.PostStatus;
 import com.uth.capstone.enums.Role;
 import com.uth.capstone.enums.UserStatus;
@@ -16,12 +19,15 @@ import com.uth.capstone.exception.AppException;
 import com.uth.capstone.exception.ErrorCode;
 import com.uth.capstone.repository.CategoryRepository;
 import com.uth.capstone.repository.ItemPostRepository;
+import com.uth.capstone.repository.ItemPostRepositoryCustom.PostSearchSlice;
+import com.uth.capstone.repository.ItemPostRepositoryCustom.PostSearchSlice.PostIdWithScore;
 import com.uth.capstone.repository.LocationRepository;
 import com.uth.capstone.security.CustomUserDetails;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,6 +54,7 @@ class PostServiceTest {
     private Category category;
     private Location location;
     private ItemPost samplePost;
+    private ItemPost secondPost;
 
     @BeforeEach
     void setUp() {
@@ -99,7 +106,21 @@ class PostServiceTest {
                 .incidentDate(LocalDateTime.of(2026, 10, 25, 10, 0))
                 .description("Mất ví da màu đen có thẻ sinh viên")
                 .status(PostStatus.APPROVED)
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.of(2026, 10, 25, 12, 0))
+                .images(new ArrayList<>())
+                .build();
+
+        secondPost = ItemPost.builder()
+                .postId(101)
+                .user(otherUser)
+                .title("Nhặt được ví da đen ở thư viện")
+                .itemType(ItemType.FOUND)
+                .category(category)
+                .location(location)
+                .incidentDate(LocalDateTime.of(2026, 10, 26, 14, 0))
+                .description("Đang giữ tại phòng bảo vệ")
+                .status(PostStatus.RESOLVED)
+                .createdAt(LocalDateTime.of(2026, 10, 26, 15, 0))
                 .images(new ArrayList<>())
                 .build();
     }
@@ -107,6 +128,142 @@ class PostServiceTest {
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    @DisplayName("GET /posts kết hợp 4 tiêu chí lọc (status=LOST, categoryId, locationId, fromDate-toDate) và ẩn PhoneNumber")
+    void shouldSearchPostsWithAllFourFiltersAndHidePhoneNumber() throws Exception {
+        when(itemPostRepository.searchPostIds(any(PostSearchRequest.class)))
+                .thenReturn(new PostSearchSlice(List.of(new PostIdWithScore(100, 1.85)), 1L));
+        when(itemPostRepository.findAllWithDetailsByPostIdIn(List.of(100)))
+                .thenReturn(List.of(samplePost));
+
+        PageResponse<PostResponse> response = postService.searchPosts(
+                "ví da",
+                "LOST",
+                null,
+                1,
+                1,
+                null,
+                "2026-10-01",
+                "2026-10-31",
+                "RELEVANCE",
+                0,
+                12
+        );
+
+        ArgumentCaptor<PostSearchRequest> captor = ArgumentCaptor.forClass(PostSearchRequest.class);
+        verify(itemPostRepository).searchPostIds(captor.capture());
+
+        PostSearchRequest captured = captor.getValue();
+        assertEquals("ví da", captured.getKeyword());
+        assertEquals(ItemType.LOST, captured.getItemType());
+        assertEquals(List.of(PostStatus.APPROVED), captured.getStatuses());
+        assertEquals(1, captured.getCategoryId());
+        assertEquals(1, captured.getLocationId());
+        assertEquals(LocalDateTime.of(2026, 10, 1, 0, 0), captured.getFromDateTime());
+        assertEquals(LocalDateTime.of(2026, 11, 1, 0, 0), captured.getToDateTime());
+        assertTrue(captured.isToDateExclusive());
+        assertEquals(PostSortBy.RELEVANCE, captured.getSortBy());
+
+        assertEquals(1, response.getItems().size());
+        assertEquals(1.85, response.getItems().get(0).getRelevanceScore());
+        assertNull(response.getItems().get(0).getAuthor().getPhoneNumber());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+        String json = mapper.writeValueAsString(response);
+        assertFalse(json.contains("0901234567"));
+        assertFalse(json.contains("phoneNumber"));
+    }
+
+    @Test
+    @DisplayName("GET /posts hỗ trợ lọc trạng thái Đã hoàn trả (status=RETURNED -> RESOLVED/CLAIMED) và sắp xếp giữ đúng thứ tự")
+    void shouldFilterByReturnedStatusAndPreserveRelevanceOrder() {
+        // Giả lập DB trả về thứ tự postId 101 trước 100, dù findAllWithDetailsByPostIdIn trả về ngược lại [100, 101]
+        when(itemPostRepository.searchPostIds(any(PostSearchRequest.class)))
+                .thenReturn(new PostSearchSlice(
+                        List.of(new PostIdWithScore(101, 2.5), new PostIdWithScore(100, 1.2)),
+                        2L
+                ));
+        when(itemPostRepository.findAllWithDetailsByPostIdIn(List.of(101, 100)))
+                .thenReturn(List.of(samplePost, secondPost));
+
+        PageResponse<PostResponse> response = postService.searchPosts(
+                "ví da",
+                "RETURNED",
+                null,
+                null,
+                null,
+                "Tòa nhà A",
+                null,
+                null,
+                null,
+                0,
+                12
+        );
+
+        ArgumentCaptor<PostSearchRequest> captor = ArgumentCaptor.forClass(PostSearchRequest.class);
+        verify(itemPostRepository).searchPostIds(captor.capture());
+
+        assertEquals(List.of(PostStatus.RESOLVED, PostStatus.CLAIMED), captor.getValue().getStatuses());
+        assertEquals("Tòa nhà A", captor.getValue().getBuildingName());
+        assertEquals(PostSortBy.RELEVANCE, captor.getValue().getSortBy());
+
+        assertEquals(2, response.getItems().size());
+        assertEquals(101, response.getItems().get(0).getPostId());
+        assertEquals(100, response.getItems().get(1).getPostId());
+    }
+
+    @Test
+    @DisplayName("GET /posts tự động chuyển sortBy=RELEVANCE sang NEWEST khi không có từ khóa")
+    void shouldFallbackRelevanceToNewestWhenNoKeywordProvided() {
+        when(itemPostRepository.searchPostIds(any(PostSearchRequest.class)))
+                .thenReturn(new PostSearchSlice(List.of(), 0L));
+
+        PageResponse<PostResponse> response = postService.searchPosts(
+                null,
+                "FOUND",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "RELEVANCE",
+                0,
+                12
+        );
+
+        ArgumentCaptor<PostSearchRequest> captor = ArgumentCaptor.forClass(PostSearchRequest.class);
+        verify(itemPostRepository).searchPostIds(captor.capture());
+        assertEquals(PostSortBy.NEWEST, captor.getValue().getSortBy());
+        assertEquals(ItemType.FOUND, captor.getValue().getItemType());
+        assertEquals("NEWEST", response.getSortBy());
+    }
+
+    @Test
+    @DisplayName("GET /posts hỗ trợ sắp xếp OLDEST")
+    void shouldSupportOldestSortOrder() {
+        when(itemPostRepository.searchPostIds(any(PostSearchRequest.class)))
+                .thenReturn(new PostSearchSlice(List.of(), 0L));
+
+        PageResponse<PostResponse> response = postService.searchPosts(
+                null, null, null, null, null, null, null, null, "OLDEST", 0, 20
+        );
+
+        assertEquals("OLDEST", response.getSortBy());
+        assertEquals(20, response.getSize());
+    }
+
+    @Test
+    @DisplayName("GET /posts báo lỗi 400 nếu fromDate lớn hơn toDate")
+    void shouldRejectInvalidDateRange() {
+        AppException ex = assertThrows(AppException.class, () -> postService.searchPosts(
+                null, null, null, null, null, null,
+                "2026-11-15", "2026-11-10", "NEWEST", 0, 12
+        ));
+        assertEquals(ErrorCode.INVALID_DATE_RANGE, ex.getErrorCode());
     }
 
     @Test
@@ -227,4 +384,3 @@ class PostServiceTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }
-

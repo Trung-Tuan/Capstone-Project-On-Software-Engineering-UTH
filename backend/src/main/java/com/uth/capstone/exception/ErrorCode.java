@@ -27,7 +27,9 @@ public enum ErrorCode {
     LOCATION_NOT_FOUND(1018, "Không tìm thấy địa điểm trong trường", HttpStatus.NOT_FOUND),
     NOT_POST_AUTHOR(1019, "Bạn chỉ có quyền thao tác trên bài đăng của chính mình", HttpStatus.FORBIDDEN),
     POST_ALREADY_CLOSED(1020, "Không thể chỉnh sửa bài đăng đã đóng hoặc đã hoàn tất trao trả", HttpStatus.BAD_REQUEST),
-    INVALID_POST_STATUS_TRANSITION(1021, "Tác giả chỉ được phép đổi trạng thái bài đăng thành Đã nhận lại (RESOLVED hoặc CLAIMED)", HttpStatus.BAD_REQUEST);
+    INVALID_POST_STATUS_TRANSITION(1021, "Tác giả chỉ được phép đổi trạng thái bài đăng thành Đã nhận lại (RESOLVED hoặc CLAIMED)", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_RANGE(1022, "Khoảng thời gian lọc không hợp lệ (Từ ngày phải nhỏ hơn hoặc bằng Đến ngày)", HttpStatus.BAD_REQUEST),
+    INVALID_FILTER_PARAMETER(1023, "Tham số lọc hoặc sắp xếp không hợp lệ", HttpStatus.BAD_REQUEST);
 
     private final int code;
     private final String message;

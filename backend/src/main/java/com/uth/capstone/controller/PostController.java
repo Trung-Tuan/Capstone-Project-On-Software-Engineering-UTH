@@ -1,22 +1,26 @@
 package com.uth.capstone.controller;
 
+import com.uth.capstone.dto.request.CreatePostRequest;
 import com.uth.capstone.dto.request.UpdatePostRequest;
 import com.uth.capstone.dto.request.UpdatePostStatusRequest;
 import com.uth.capstone.dto.response.ApiResponse;
 import com.uth.capstone.dto.response.PageResponse;
 import com.uth.capstone.dto.response.PostResponse;
+import com.uth.capstone.enums.PostStatus;
 import com.uth.capstone.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller cung cấp các API quản lý & tìm kiếm bài đăng Mất đồ / Nhặt được:
+ * - POST /posts (& /api/posts): Tạo mới bài đăng Mất đồ / Nhặt được (PENDING hoặc tự động APPROVED).
  * - GET /posts (& /api/posts): Tìm kiếm Full-text trên Title & Description, bộ lọc kết hợp 4 tiêu chí & sắp xếp.
  * - GET /posts/{id} (& /api/posts/{id}): Xem chi tiết bài đăng và ẩn PhoneNumber của người đăng trên dữ liệu công khai.
  * - PUT /posts/{id} (& /api/posts/{id}): Chỉ cho phép tác giả chỉnh sửa bài đăng của chính mình khi bài chưa đóng.
@@ -33,6 +37,22 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+
+    @PostMapping
+    @Operation(
+            summary = "Tạo mới bài đăng Mất đồ / Nhặt được",
+            description = "Kiểm tra hợp lệ dữ liệu đầu vào (tiêu đề, loại tin LOST/FOUND, danh mục, địa điểm, thời gian, mô tả chi tiết và tối đa 3 ảnh) rồi lưu ở trạng thái PENDING hoặc APPROVED."
+    )
+    public ResponseEntity<ApiResponse<PostResponse>> createPost(
+            @Valid @RequestBody CreatePostRequest request
+    ) {
+        PostResponse createdPost = postService.createPost(request);
+        String message = createdPost.getStatus() == PostStatus.APPROVED
+                ? "Tạo bài đăng thành công và đã được hiển thị công khai"
+                : "Tạo bài đăng thành công, bài viết đang chờ ban quản trị kiểm duyệt";
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(message, createdPost));
+    }
 
     @GetMapping
     @Operation(

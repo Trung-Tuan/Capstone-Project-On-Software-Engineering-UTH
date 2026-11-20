@@ -14,6 +14,7 @@ const PostNewPage      = lazy(() => import('@pages/PostNewPage'));
 const LoginPage        = lazy(() => import('@pages/LoginPage'));
 const ClaimPage        = lazy(() => import('@pages/ClaimPage'));
 const MyClaimsPage     = lazy(() => import('@pages/MyClaimsPage'));
+const MyPostsPage      = lazy(() => import('@pages/MyPostsPage'));
 const ProfilePage      = lazy(() => import('@pages/ProfilePage'));
 const AdminDashboard   = lazy(() => import('@pages/admin/AdminDashboardPage'));
 const AdminPostsPage   = lazy(() => import('@pages/admin/AdminPostsPage'));
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { path: 'posts/new',     element: withSuspense(PostNewPage) },
       { path: 'claims/:postId', element: withSuspense(ClaimPage) },
       { path: 'my-claims',     element: withSuspense(MyClaimsPage) },
+      { path: 'my-posts',      element: withSuspense(MyPostsPage) },
       { path: 'profile',       element: withSuspense(ProfilePage) },
     ],
   },

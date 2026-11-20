@@ -106,8 +106,8 @@ export default function HomePage() {
             <Link to={ROUTES.POSTS} className={styles.ctaPrimary} id="hero-browse-btn">
               <span aria-hidden="true">📋</span> Xem danh sách
             </Link>
-            <Link to={ROUTES.LOGIN} className={styles.ctaSecondary} id="hero-post-btn">
-              <span aria-hidden="true">✏️</span> Đăng bài ngay
+            <Link to={ROUTES.POST_NEW} className={styles.ctaSecondary} id="hero-post-btn">
+              <span aria-hidden="true">✏️</span> Đăng tin ngay
             </Link>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function HomePage() {
                     <span
                       className={`badge ${post.type === 'LOST' ? 'badge-lost' : 'badge-found'}`}
                     >
-                      {post.type === 'LOST' ? '😢 Đã mất' : '🎉 Tìm thấy'}
+                      {post.type === 'LOST' ? '🚨 Mất đồ' : '🎁 Nhặt được'}
                     </span>
                   </div>
                   <h3 className={styles.postCardTitle}>{post.title}</h3>

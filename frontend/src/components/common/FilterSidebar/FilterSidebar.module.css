@@ -243,7 +243,7 @@
   font-size: var(--font-size-xs);
   outline: none;
   transition: border-color var(--transition-fast);
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 .dateInput:focus { border-color: var(--border-focus); }

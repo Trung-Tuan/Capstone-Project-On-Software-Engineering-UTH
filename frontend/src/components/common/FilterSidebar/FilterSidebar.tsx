@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { POST_CATEGORIES, CAMPUS_LOCATIONS } from '@constants/index';
-import type { PostFilters, PostType } from '@types/index';
+import type { PostFilters, PostType, PostStatus } from '@types/index';
 import styles from './FilterSidebar.module.css';
 
 // ── Props ─────────────────────────────────────────────────
@@ -27,7 +27,7 @@ export default function FilterSidebar({
   useEffect(() => { setLocal(filters); }, [filters]);
 
   const activeCount = [
-    local.type, local.category, local.location, local.keyword,
+    local.type, local.status, local.category, local.location, local.keyword,
     local.dateFrom, local.dateTo,
   ].filter(Boolean).length;
 
@@ -58,6 +58,7 @@ export default function FilterSidebar({
         <div className={styles.cardTitle}>Loại bài đăng</div>
         <div className={styles.typeGrid}>
           <button
+            type="button"
             className={`${styles.typeBtn} ${!local.type ? styles.active : ''}`}
             onClick={() => handleTypeToggle(undefined)}
             id="filter-type-all"
@@ -66,22 +67,39 @@ export default function FilterSidebar({
             Tất cả
           </button>
           <button
+            type="button"
             className={`${styles.typeBtn} ${local.type === 'LOST' ? styles.lostActive : ''}`}
             onClick={() => handleTypeToggle('LOST')}
             id="filter-type-lost"
           >
-            <span className={styles.typeBtnIcon}>😢</span>
-            Đã mất
+            <span className={styles.typeBtnIcon}>🚨</span>
+            Mất đồ
           </button>
           <button
+            type="button"
             className={`${styles.typeBtn} ${local.type === 'FOUND' ? styles.foundActive : ''}`}
             onClick={() => handleTypeToggle('FOUND')}
             id="filter-type-found"
           >
-            <span className={styles.typeBtnIcon}>🎉</span>
-            Tìm thấy
+            <span className={styles.typeBtnIcon}>🎁</span>
+            Nhặt được
           </button>
         </div>
+      </div>
+
+      {/* Status filter */}
+      <div className={styles.card}>
+        <div className={styles.cardTitle}>Trạng thái</div>
+        <select
+          id="filter-status"
+          className={styles.select}
+          value={local.status ?? ''}
+          onChange={e => update('status', (e.target.value as PostStatus) || undefined)}
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="ACTIVE">🟢 Đang hoạt động / Đang tìm</option>
+          <option value="RESOLVED">🔵 Đã nhận lại</option>
+        </select>
       </div>
 
       {/* Keyword search */}
@@ -119,7 +137,7 @@ export default function FilterSidebar({
 
       {/* Location */}
       <div className={styles.card}>
-        <div className={styles.cardTitle}>Địa điểm</div>
+        <div className={styles.cardTitle}>Địa điểm tại UTH</div>
         <select
           id="filter-location"
           className={styles.select}
@@ -165,6 +183,7 @@ export default function FilterSidebar({
       {/* Apply / Reset */}
       <div className={styles.btnRow}>
         <button
+          type="button"
           className={styles.btnApply}
           onClick={handleApply}
           id="filter-apply-btn"
@@ -175,6 +194,7 @@ export default function FilterSidebar({
           )}
         </button>
         <button
+          type="button"
           className={styles.btnReset}
           onClick={handleReset}
           id="filter-reset-btn"
@@ -216,6 +236,7 @@ export default function FilterSidebar({
             )}
           </span>
           <button
+            type="button"
             className={styles.drawerClose}
             onClick={onDrawerClose}
             aria-label="Đóng bộ lọc"
@@ -240,6 +261,7 @@ export function FilterTrigger({
 }) {
   return (
     <button
+      type="button"
       className={styles.filterTrigger}
       onClick={onClick}
       id="filter-drawer-trigger"

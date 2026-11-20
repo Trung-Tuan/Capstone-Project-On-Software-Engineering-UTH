@@ -63,14 +63,14 @@
   --color-info-text:    #818cf8;
   --color-info:         #6366f1;
 
-  /* --- Lost/Found badge colors --- */
-  --color-lost-bg:      rgba(239, 68, 68, 0.18);
-  --color-lost-text:    #fca5a5;
-  --color-lost-border:  rgba(239, 68, 68, 0.35);
+  /* --- Lost/Found badge colors (Light UTH Theme) --- */
+  --color-lost-bg:      #fee2e2;
+  --color-lost-text:    #b91c1c;
+  --color-lost-border:  #ef4444;
 
-  --color-found-bg:     rgba(34, 197, 94, 0.18);
-  --color-found-text:   #86efac;
-  --color-found-border: rgba(34, 197, 94, 0.35);
+  --color-found-bg:     #dcfce7;
+  --color-found-text:   #15803d;
+  --color-found-border: #22c55e;
 
   /* --- Gradients --- */
   --gradient-primary:    linear-gradient(135deg, #6366f1 0%, #a855f7 100%);

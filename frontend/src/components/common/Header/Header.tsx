@@ -14,8 +14,9 @@ const MOCK_USER: MockUser | null = null; // set to null = not logged in
 
 // ── Nav items ─────────────────────────────────────────────
 const NAV_ITEMS = [
-  { to: ROUTES.POSTS,    label: 'Danh sách',  icon: '📋' },
-  { to: ROUTES.MY_CLAIMS, label: 'Yêu cầu',  icon: '📬' },
+  { to: ROUTES.POSTS,     label: 'Danh sách',          icon: '📋' },
+  { to: ROUTES.MY_POSTS,  label: 'Bài đăng của tôi',   icon: '📝' },
+  { to: ROUTES.MY_CLAIMS, label: 'Yêu cầu',           icon: '📬' },
 ] as const;
 
 export default function Header() {
@@ -150,6 +151,15 @@ export default function Header() {
                           id="header-profile-link"
                         >
                           <span aria-hidden="true">👤</span> Hồ sơ cá nhân
+                        </Link>
+                        <Link
+                          to={ROUTES.MY_POSTS}
+                          className={styles.dropdownItem}
+                          role="menuitem"
+                          onClick={() => setDropdown(false)}
+                          id="header-my-posts-link"
+                        >
+                          <span aria-hidden="true">📝</span> Bài đăng của tôi
                         </Link>
                         <Link
                           to={ROUTES.MY_CLAIMS}

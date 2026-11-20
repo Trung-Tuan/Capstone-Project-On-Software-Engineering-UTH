@@ -19,6 +19,7 @@ export const ROUTES = {
   LOGIN:        '/login',
   CLAIMS:       '/claims/:postId',
   MY_CLAIMS:    '/my-claims',
+  MY_POSTS:     '/my-posts',
   PROFILE:      '/profile',
   ADMIN:        '/admin',
   ADMIN_POSTS:  '/admin/posts',
